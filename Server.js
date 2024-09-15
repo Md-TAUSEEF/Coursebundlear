@@ -18,11 +18,25 @@ dotenv.config({ path: "./Config/.env" });
 const app = express();
 
 
+const allowedOrigins = [
+  'http://localhost:3000', // Development
+  'https://coursebundlearr-5nkdpaajh-md-tauseefs-projects.vercel.app' // Production (Vercel)
+];
+
 app.use(cors({
-  origin: '*', // Allow all origins (use only for testing)
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   methods: 'GET, POST, PUT, DELETE',
   credentials: true,
 }));
+
 
 
 app.use(express.json());
